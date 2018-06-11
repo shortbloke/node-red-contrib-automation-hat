@@ -113,8 +113,9 @@
 </ul>
 
 <p><b>Relays</b></p>
-<p>The three relays on Automation HAT supply both NO (Normally Open) and NC (Normally Closed) terminals. You can use them to switch a single load, or alternate between two. The relays should be placed between the voltage supply and your load. The relays can switch a maxium load of 24V 2A per relay</p>
+<p>The three relays on Automation HAT supply both NO (Normally Open) and NC (Normally Closed) terminals. You can use them to switch a single load, or alternate between two. The relays should be placed between the voltage supply and your load. The relays can switch a maxium load of 24V 2A per relay.</p>
 <p>Relay outputs are controlled by sending a message with the topic <code>output.&lt;channel&gt;</code> where channel is a number from 1 to 3 (corresponding to the numbers on the Automation HAT board) or a name from "one" to "three" if you prefer.</p>
+
 <p>The <code>payload</code> of the message should be set to:</p>
 <ul>
     <li><code>1</code> or <code>on</code> : to switch the relay contacts so that COM is connected to NO.</li>
@@ -125,6 +126,7 @@
 <p><b>Lights</b></p>
 <p>Automation HAT includes three user-controllable lights: Power, Comms and Warn.
 <p>Lights are controlled by sending a message with the topic <code>light.&lt;channel&gt;</code> where channel is a the light named on the board "power", "comms", or "warn".</p>
+
 <p>The <code>payload</code> of the message should be set to:</p>
 <ul>
     <li><code>1</code> or <code>on</code> or <code>enable</code> : to enable the automatic lights.</li>
@@ -135,6 +137,7 @@
 <p><b>Additional Commands</b></p>
 <p>By default the Automation HAT will trigger indicator lights on each input/output automatically.</p>
 <p>This behaviour can be controlled by sending a messsage with the topic <code>auto_lights</code></p>
+
 <p>The <code>payload</code> of the message should be set to:</p>
 <ul>
     <li><code>1</code> or <code>on</code> : to turn the light on.</li>
