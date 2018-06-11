@@ -17,7 +17,7 @@
     "node-red": {
         "version": ">=0.13.0",
         "nodes": {
-            "flotilla": "nodes/rpi-automationhat.js"
+            "automation-hat-generic": "nodes/rpi-automationhat.js"
         }
     },
     "author": "Martin Rowan <martin@rowannet.co.uk>",
