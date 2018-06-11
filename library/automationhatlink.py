@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import time
 import sys
 from threading import Thread, Event
-from Queue import Queue, Empty
+from queue import Queue, Empty
 
 class NonBlockingStreamReader:
 

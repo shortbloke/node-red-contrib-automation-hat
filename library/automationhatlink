@@ -1,2 +1,2 @@
 BASEDIR=$(dirname $0)
-sudo python -u $BASEDIR/automationhatlink.py $@
+sudo python3 -u $BASEDIR/automationhatlink.py $@

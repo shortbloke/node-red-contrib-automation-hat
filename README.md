@@ -46,4 +46,4 @@ Different devices and versions are likely to work, these are just notes for what
 * Raspbian Kernel version: 4.14.34-v7+
 * Node-RED: v0.18.7
 * Node.js: v8.11.2
-* Python: 2.7.13
+* Python3: 3.5.3
