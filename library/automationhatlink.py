@@ -85,13 +85,6 @@ running = True
 
 stdin = NonBlockingStreamReader(sys.stdin)
 
-# def handle_touch(channel, event):
-#     emit("touch.{}:{}".format(channel,1 if event == "press" else 0))
-
-# if explorerhat.has_captouch:
-#     explorerhat.touch.pressed(handle_touch)
-#     explorerhat.touch.released(handle_touch)
-
 # pin_index = {'one':1, 'two':2, 'three':3, 'four':4}
 
 # def handle_input(pin):
@@ -109,7 +102,6 @@ stdin = NonBlockingStreamReader(sys.stdin)
 #         last_change[analog.channel] = millis()
 #         last_value[analog.channel] = value
 #         emit("analog.{}:{}".format(analog.channel,value))
-
 # if explorerhat.has_analog:
 #     explorerhat.analog.changed(handle_analog, 0.01)
 

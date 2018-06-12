@@ -76,12 +76,6 @@ module.exports = function(RED) {
 
                         node.send({topic:"automationhat/analog." + channel, payload:Number(msg)});
                     }
-                    else if ( data.substring(0,5) == "touch" && node.send_touch ){
-                        var channel = data.substring(6,7);
-                        var msg = data.split(":")[1];
-
-                        node.send({topic:"automationhat/touch." + channel, payload:Number(msg)});
-                    }
                     else if ( data.substring(0,5) == "input" && node.send_input ){
                         var channel = data.substring(6,7);
                         var msg = data.split(":")[1];
@@ -154,8 +148,7 @@ module.exports = function(RED) {
                     node.status({fill:"green",shape:"dot",text:"Connected"});
                 }
 
-                REDvInfo("Adding node, touch: " + (node.send_touch ? "yes" : "no") +
-                                    ", input: " + (node.send_input ? "yes" : "no") + 
+                REDvInfo("Adding node, input: " + (node.send_input ? "yes" : "no") + 
                                    ", analog:" + (node.send_analog ? "yes" : "no"));
 
                 users.push(node);
