@@ -9,6 +9,9 @@
 * Controlling individual indicator lights on each input/output
 
 ### Installation
+#### Install Node and Node-Red
+Details of how to install Node and Node-Red needed for this project on Raspberry Pi can be found [here](https://nodered.org/docs/hardware/raspberrypi). The script at the top of the page ensures you have the latest supported versions ready for this project.
+
 #### Automation HAT Python Library
 First you'll need the Python dependencies for Automation HAT, you can install these with our one-line installer:
 
