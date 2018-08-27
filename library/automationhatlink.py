@@ -108,8 +108,8 @@ stdin = NonBlockingStreamReader(sys.stdin)
 relay_index = ['one','two','three']
 output_index = ['one','two','three']
 light_index = ['power','comms','warn']
-on_values = ['1', 'on', 'enable']
-off_values = ['0', 'off', 'disable']
+on_values = ['1', 'on', 'enable', 'true']
+off_values = ['0', 'off', 'disable', 'false']
 toggle_values = ['toggle']
 
 def handle_command(cmd):

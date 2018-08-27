@@ -202,7 +202,7 @@ module.exports = function(RED) {
         HAT.open(this);
 
         node.on("input", function(msg) {
-            if (typeof msg.payload === "number" || msg.payload === "on" || msg.payload == "off" || msg.payload == "toggle" || msg.payload == "enable" || msg.payload == "disable"){
+            if (typeof msg.payload === "number" || msg.payload === "on" || msg.payload == "off" || msg.payload == "toggle" || msg.payload == "enable" || msg.payload == "disable" || msg.payload == true || msg.payload == false){
                 HAT.send(msg.topic + ":" + msg.payload.toString());
                 REDvInfo("Sending Command: " + msg.topic + ":" + msg.payload.toString());
             }
