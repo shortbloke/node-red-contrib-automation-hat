@@ -85,12 +85,17 @@ running = True
 
 stdin = NonBlockingStreamReader(sys.stdin)
 
-# pin_index = {'one':1, 'two':2, 'three':3, 'four':4}
+input_pin_index = {'one':1, 'two':2, 'three':3}
+input_last_value = [None,None,None,None] # Four elements, since we don't use 0 just 1, 2 and 3. 
 
-# def handle_input(pin):
-#     emit("input.{}:{}".format(pin_index[pin.name],pin.read()))
+def handle_input(buffered_input):
+    global input_last_value
 
-# automationhat.input.changed(handle_input)
+    for input_pin in input_pin_index:
+        if input_last_value[input_pin_index[input_pin]] != buffered_input[input_pin]: # Input value changed
+            # This will always trigger on 1st run as values are changed from None to 0 or 1.
+            input_last_value[input_pin_index[input_pin]] = buffered_input[input_pin]
+            emit("input.{}:{}".format(input_pin_index[input_pin],buffered_input[input_pin]))
 
 # last_change = [0,0,0,0]
 # last_value = [None,None,None,None]
@@ -200,9 +205,9 @@ def handle_command(cmd):
             stdin.stop()
             running = False
 
-
 while running:
     cmd = stdin.readline(0.1)
     handle_command(cmd)
+    buffered_input = automationhat.input.read()
+    handle_input(buffered_input)
     time.sleep(0.001)
-

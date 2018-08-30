@@ -1,11 +1,12 @@
 ## Node-RED nodes for Pimoroni Automation HAT/pHAT
 
 ### Provided nodes:
-* Automation HAT: Output, Relays, Lights
+* Automation HAT:
+  * Output Node: Sinking Outputs, Relays, Lights
+  * Input Node: Buffered 5V Inputs
 
 ### Unsupported features:
 * Analog Inputs
-* Digital Inputs
 * Controlling individual indicator lights on each input/output
 
 ### Installation
@@ -35,7 +36,7 @@ Then start Node-Red and you should see the new Automation HAT nodes within the R
 
 ### To Do
 In no particular order:
-* Add support for Analog and Digital Inputs - May require extending the underlying Python Library to monitor for and trigger on changes.
+* Add support for Analog (ADC) Inputs 
 * Split input and outputs types into separate node files
 * Add example Node-Red flows
 * Add documentation
@@ -45,11 +46,3 @@ In no particular order:
 
 ## References
 This project is based on the ExplorerHAT node implementation published by Pimoroni: https://github.com/pimoroni/node-red-nodes
-
-## Tested Configuration
-Different devices and versions are likely to work, these are just notes for what I have used.
-* Raspberry Pi 3 Model B Rev 1.2
-* Raspbian Kernel version: 4.14.34-v7+
-* Node-RED: v0.18.7
-* Node.js: v8.11.2
-* Python3: 3.5.3
