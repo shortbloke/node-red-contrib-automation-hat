@@ -1,10 +1,10 @@
 {
-    "name"          : "node-red-contrib-automation-hat",
-    "version"       : "0.1.0",
-    "description"   : "Node-RED nodes for the Pimoroni Automation HAT and pHAT",
+    "name": "node-red-contrib-automation-hat",
+    "version": "0.1.1",
+    "description": "Node-RED nodes for the Pimoroni Automation HAT and pHAT",
     "main": "index.js",
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [
         "node-red",
@@ -13,7 +13,7 @@
         "pimoroni",
         "raspberry",
         "iot"
-     ],
+    ],
     "node-red": {
         "version": ">=0.13.0",
         "nodes": {
@@ -22,9 +22,9 @@
     },
     "author": "Martin Rowan <martin@rowannet.co.uk>",
     "license": "Apache-2.0",
-    "repository" : {
-        "type":"git",
-        "url":"https://github.com/shortbloke/node-red-contrib-automation-hat.git"
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/shortbloke/node-red-contrib-automation-hat.git"
     },
-    "dependencies"  : {}
+    "dependencies": {}
 }
