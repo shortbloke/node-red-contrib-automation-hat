@@ -85,30 +85,31 @@ running = True
 
 stdin = NonBlockingStreamReader(sys.stdin)
 
-input_pin_index = {'one':1, 'two':2, 'three':3}
+input_index = {'one':1, 'two':2, 'three':3}
 input_last_value = [None,None,None,None] # Four elements, since we don't use 0 just 1, 2 and 3. 
 
 def handle_input(buffered_input):
     global input_last_value
 
-    for input_pin in input_pin_index:
-        if input_last_value[input_pin_index[input_pin]] != buffered_input[input_pin]: # Input value changed
+    for input_channel in input_index:
+        if input_last_value[input_index[input_channel]] != buffered_input[input_channel]: # Input value changed
             # This will always trigger on 1st run as values are changed from None to 0 or 1.
-            input_last_value[input_pin_index[input_pin]] = buffered_input[input_pin]
-            emit("input.{}:{}".format(input_pin_index[input_pin],buffered_input[input_pin]))
+            input_last_value[input_index[input_channel]] = buffered_input[input_channel]
+            emit("input.{}:{}".format(input_index[input_channel],buffered_input[input_channel]))
 
-# last_change = [0,0,0,0]
-# last_value = [None,None,None,None]
+# analog_index = {'one':1, 'two':2, 'three':3, 'four':4}
+analog_index = {'one':1, 'two':2, 'three':3} # Exclude ADC4, appears to be floating and easily triggered by noise.
+last_analog_value = [None,None,None,None,None]
 
-# def handle_analog(analog, value):
-#     global last_change, last_value
+def handle_analog(analog):
+    global last_analog_value
 
-#     if millis() - last_change[analog.channel] > 1000 or last_value[analog.channel] is None or abs(last_value[analog.channel] - value) >= 0.1:
-#         last_change[analog.channel] = millis()
-#         last_value[analog.channel] = value
-#         emit("analog.{}:{}".format(analog.channel,value))
-# if explorerhat.has_analog:
-#     explorerhat.analog.changed(handle_analog, 0.01)
+    for analog_channel in analog_index:
+        channel = analog_index[analog_channel]
+        value = analog[analog_channel]
+        if last_analog_value[channel] is None or abs(last_analog_value[channel] - value) >= 0.1:
+            last_analog_value[channel] = value
+            emit("analog.{}:{}".format(channel,value))
 
 relay_index = ['one','two','three']
 output_index = ['one','two','three']
@@ -118,6 +119,8 @@ off_values = ['0', 'off', 'disable', 'false']
 toggle_values = ['toggle']
 
 def handle_command(cmd):
+    global running
+
     if cmd is not None:
         cmd = cmd.strip()
 
@@ -208,6 +211,6 @@ def handle_command(cmd):
 while running:
     cmd = stdin.readline(0.1)
     handle_command(cmd)
-    buffered_input = automationhat.input.read()
-    handle_input(buffered_input)
+    handle_input(automationhat.input.read())
+    handle_analog(automationhat.analog.read())
     time.sleep(0.001)
