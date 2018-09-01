@@ -1,16 +1,20 @@
 # Node-RED nodes for Pimoroni Automation HAT/pHAT
 
-## Provides nodes:
+## Provides nodes
 
 * Automation HAT:
   * Output Node: Sinking Outputs, Relays, Lights
   * Input Node: Buffered 5V Inputs (binary), 12-bit ADC @ 0-24V (±2% accuracy) Inputs (ADC1-3 only)
 
-### Unsupported features:
+### Unsupported features
 
 * ADC4: 12-bit ADC @ 0-3.3V
-* Other Pins exposed only break out section: SPI, TX (#14), RX (#15), #25 pins 
+* Other Pins exposed only break out section: SPI, TX (#14), RX (#15), #25 pins
 * Controlling individual indicator lights on each input/output beyond the auto_lights capability.
+
+## More Information
+
+Check out [my blog post](https://www.martinrowan.co.uk/2018/09/node-red-support-for-pimoroni-automation-hat-phat/) for this new Node Package for some background and examples.
 
 ## Installation
 
@@ -20,7 +24,7 @@ Details of how to install Node and Node-Red needed for this project on Raspberry
 
 ### Dependency - Automation HAT Python Library
 
-First you'll need the Python dependencies for Automation HAT, you can install these with our one-line installer (as per instructions at: https://github.com/pimoroni/automation-hat):
+First you'll need the Python dependencies for Automation HAT, you can install these with our one-line installer, [as per these instructions](https://github.com/pimoroni/automation-hat)
 
 ``` bash
 curl https://get.pimoroni.com/automationhat | bash
@@ -56,12 +60,10 @@ To install this node you should:
 In no particular order:
 
 * Consider splitting input and outputs types into separate node files
-* Add example Node-Red flows
-* Add documentation
-* Document specific characteristics/limitations of pHAT vs HAT
+* Consider having a node with input and output for poll based reads, rather than just for change events
 * Add support for controlling light brightness via `write` command
 * Add support for controlling each individual indicator light for each input and output
 
 ## References
 
-This project is based on the ExplorerHAT node implementation published by Pimoroni: https://github.com/pimoroni/node-red-nodes
+This project is based on the [ExplorerHAT node implementation published by Pimoroni](https://github.com/pimoroni/node-red-nodes)
