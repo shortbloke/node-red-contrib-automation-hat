@@ -114,7 +114,7 @@
 
 <p><b>Relays</b></p>
 <p>The three relays on Automation HAT supply both NO (Normally Open) and NC (Normally Closed) terminals. You can use them to switch a single load, or alternate between two. The relays should be placed between the voltage supply and your load. The relays can switch a maximum load of 24V 2A per relay.</p>
-<p>Relay outputs are controlled by sending a message with the topic <code>output.&lt;channel&gt;</code> where channel is a number from 1 to 3 (corresponding to the numbers on the Automation HAT board) or a name from "one" to "three" if you prefer.</p>
+<p>Relay outputs are controlled by sending a message with the topic <code>relay.&lt;channel&gt;</code> where channel is a number from 1 to 3 (corresponding to the numbers on the Automation HAT board) or a name from "one" to "three" if you prefer.</p>
 
 <p>The <code>payload</code> of the message should be set to:</p>
 <ul>
