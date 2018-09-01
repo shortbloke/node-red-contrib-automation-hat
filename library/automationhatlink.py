@@ -107,7 +107,7 @@ def handle_analog(analog):
     for analog_channel in analog_index:
         channel = analog_index[analog_channel]
         value = analog[analog_channel]
-        if last_analog_value[channel] is None or abs(last_analog_value[channel] - value) >= 0.1:
+        if last_analog_value[channel] is None or abs(last_analog_value[channel] - value) >= 0.01:
             last_analog_value[channel] = value
             emit("analog.{}:{}".format(channel,value))
 
