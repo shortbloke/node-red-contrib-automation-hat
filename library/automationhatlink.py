@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Copyright 2018 Martin Rowan <martin@rowannet.co.uk>
-# Initial implementaiton Copyright 2016 Pimoroni Ltd
+# Initial implementation Copyright 2016 Pimoroni Ltd
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
