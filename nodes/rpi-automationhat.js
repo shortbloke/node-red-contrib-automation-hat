@@ -70,13 +70,13 @@ module.exports = function(RED) {
                 }
 
                 users.forEach(function(node){
-                    if ( data.substring(0,6) == "analog" && node.send_analog ){
+                    if ( data.substring(0,6) == "analog" && (node.send_analog || node.send_reader_analog) ){
                         var channel = data.substring(7,8);
                         var msg = data.split(":")[1];
 
                         node.send({topic:"automationhat/analog." + channel, payload:Number(msg)});
                     }
-                    else if ( data.substring(0,5) == "input" && node.send_input ){
+                    else if ( data.substring(0,5) == "input" && (node.send_input || node.send_reader_input) ){
                         var channel = data.substring(6,7);
                         var msg = data.split(":")[1];
 
@@ -150,7 +150,9 @@ module.exports = function(RED) {
 
                 REDvInfo("Adding node, input: " + (node.send_input ? "yes" : "no") + 
                                    ", analog:" + (node.send_analog ? "yes" : "no"));
-
+                REDvInfo("Adding node, reader: " + (node.reader_input ? "yes" : "no") + 
+                                   ", analog:" + (node.reader_analog ? "yes" : "no"));
+                                    // TODO: Add here to pass the thesehold value for analog inputs?
                 users.push(node);
             },
             close: function(node,done){
@@ -214,4 +216,33 @@ module.exports = function(RED) {
     }
 
     RED.nodes.registerType("rpi-automation-hat out",AutomationHATOut);
+
+    function AutomationHATReader(config) {
+        RED.nodes.createNode(this,config);
+
+        this.send_reader_input = config.input;
+        this.send_reader_analog = config.analog;
+
+        var node = this;
+
+        node.status({fill:"red",shape:"ring",text:"Disconnected"});
+
+        REDvInfo("Initialising node");
+
+        HAT.open(this);
+
+        node.on("input", function(msg) {
+            HAT.send("Reader:" + msg.payload.toString());
+            REDvInfo("Sending Command: " + "Reader:" + msg.payload.toString());
+        });
+
+        node.on("close", function(done) {
+            HAT.close(this);
+            done();
+            REDvInfo("Node Closed");
+        });
+    }
+
+    RED.nodes.registerType("rpi-automation-hat reader",AutomationHATReader);
+
 }

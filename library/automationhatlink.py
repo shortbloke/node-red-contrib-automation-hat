@@ -88,11 +88,11 @@ stdin = NonBlockingStreamReader(sys.stdin)
 input_index = {'one':1, 'two':2, 'three':3}
 input_last_value = [None,None,None,None] # Four elements, since we don't use 0 just 1, 2 and 3. 
 
-def handle_input(buffered_input):
+def handle_input(buffered_input, forceEmit=False):
     global input_last_value
 
     for input_channel in input_index:
-        if input_last_value[input_index[input_channel]] != buffered_input[input_channel]: # Input value changed
+        if input_last_value[input_index[input_channel]] != buffered_input[input_channel] or forceEmit: # Input value changed
             # This will always trigger on 1st run as values are changed from None to 0 or 1.
             input_last_value[input_index[input_channel]] = buffered_input[input_channel]
             emit("input.{}:{}".format(input_index[input_channel],buffered_input[input_channel]))
@@ -101,13 +101,13 @@ def handle_input(buffered_input):
 analog_index = {'one':1, 'two':2, 'three':3} # Exclude ADC4, appears to be floating and easily triggered by noise.
 last_analog_value = [None,None,None,None,None]
 
-def handle_analog(analog):
+def handle_analog(analog, forceEmit=False):
     global last_analog_value
 
     for analog_channel in analog_index:
         channel = analog_index[analog_channel]
         value = analog[analog_channel]
-        if last_analog_value[channel] is None or abs(last_analog_value[channel] - value) >= 0.01:
+        if last_analog_value[channel] is None or abs(last_analog_value[channel] - value) >= 0.01 or forceEmit:
             last_analog_value[channel] = value
             emit("analog.{}:{}".format(channel,value))
 
@@ -207,6 +207,11 @@ def handle_command(cmd):
         if cmd == "stop":
             stdin.stop()
             running = False
+        
+        if cmd.startswith("Reader"):
+            #Do Read Input
+            handle_input(automationhat.input.read(), True)
+            handle_analog(automationhat.analog.read(), True)
 
 while running:
     cmd = stdin.readline(0.1)

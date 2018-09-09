@@ -60,7 +60,6 @@ To install this node you should:
 In no particular order:
 
 * Consider splitting input and outputs types into separate node files
-* Consider having a node with input and output for poll based reads, rather than just for change events
 * Add support for controlling light brightness via `write` command
 * Add support for controlling each individual indicator light for each input and output
 
