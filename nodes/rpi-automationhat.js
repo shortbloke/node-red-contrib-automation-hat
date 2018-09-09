@@ -149,10 +149,9 @@ module.exports = function(RED) {
                 }
 
                 REDvInfo("Adding node, input: " + (node.send_input ? "yes" : "no") + 
-                                   ", analog:" + (node.send_analog ? "yes" : "no"));
+                                   ", analog:" + (node.send_analog ? "yes" : "no") + ", threshold: " + node.send_threshold);
                 REDvInfo("Adding node, reader: " + (node.reader_input ? "yes" : "no") + 
                                    ", analog:" + (node.reader_analog ? "yes" : "no"));
-                                    // TODO: Add here to pass the thesehold value for analog inputs?
                 users.push(node);
             },
             close: function(node,done){
@@ -178,6 +177,7 @@ module.exports = function(RED) {
 
         this.send_input = config.input;
         this.send_analog = config.analog;
+        this.send_threshold = config.threshold;
 
         var node = this;
 
@@ -186,6 +186,7 @@ module.exports = function(RED) {
         REDvInfo("Initialising node");
 
         HAT.open(this);
+        HAT.send("Set Analog Threshold:" + this.send_threshold)
 
         node.on("close", function(done) {
             HAT.close(this);

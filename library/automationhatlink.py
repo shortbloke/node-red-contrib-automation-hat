@@ -82,6 +82,7 @@ else:
     fatal("automationHAT/automationPHAT not detected")
 
 running = True
+threshold = 0.01;
 
 stdin = NonBlockingStreamReader(sys.stdin)
 
@@ -107,7 +108,7 @@ def handle_analog(analog, forceEmit=False):
     for analog_channel in analog_index:
         channel = analog_index[analog_channel]
         value = analog[analog_channel]
-        if last_analog_value[channel] is None or abs(last_analog_value[channel] - value) >= 0.01 or forceEmit:
+        if last_analog_value[channel] is None or abs(last_analog_value[channel] - value) >= threshold or forceEmit:
             last_analog_value[channel] = value
             emit("analog.{}:{}".format(channel,value))
 
@@ -120,6 +121,7 @@ toggle_values = ['toggle']
 
 def handle_command(cmd):
     global running
+    global threshold
 
     if cmd is not None:
         cmd = cmd.strip()
@@ -207,11 +209,16 @@ def handle_command(cmd):
         if cmd == "stop":
             stdin.stop()
             running = False
-        
+
         if cmd.startswith("Reader"):
             #Do Read Input
             handle_input(automationhat.input.read(), True)
             handle_analog(automationhat.analog.read(), True)
+
+        if cmd.startswith("Set Analog Threshold"):
+            cmd, data = cmd.split(":")
+            if (float(data) > 0):
+                threshold = float(data)
 
 while running:
     cmd = stdin.readline(0.1)
