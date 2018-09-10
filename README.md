@@ -1,10 +1,12 @@
 # Node-RED nodes for Pimoroni Automation HAT/pHAT
 
+[Pimoroni Automation HAT](https://raw.githubusercontent.com/shortbloke/node-red-contrib-automation-hat/master/images/Automation_HAT_1_of_3_1024x1024.jpg)
+
 ## Provides nodes
 
 * Automation HAT:
   * Output Node: Sinking Outputs, Relays, Lights
-  * Input Node: Buffered 5V Inputs (binary), 12-bit ADC @ 0-24V (±2% accuracy) Inputs (ADC1-3 only)
+  * Input Node: Buffered Inputs (binary), 12-bit ADC @ 0-24V (±2% accuracy) Inputs (ADC1-3 only)
 
 ### Unsupported features
 
@@ -15,6 +17,10 @@
 ## More Information
 
 Check out [my blog post](https://www.martinrowan.co.uk/2018/09/node-red-support-for-pimoroni-automation-hat-phat/) for this new Node Package for some background and examples.
+
+### Where to buy
+* [Pimoroni Automation HAT](https://shop.pimoroni.com/products/automation-hat)
+* [Pimoroni Automation pHAT](https://shop.pimoroni.com/products/automation-phat)
 
 ## Installation
 
