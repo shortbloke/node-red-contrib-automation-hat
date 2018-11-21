@@ -63,6 +63,9 @@ def emit(message):
     sys.stdout.write(message + "\n")
     sys.stdout.flush()
 
+def debug(message):
+    emit("DEBUG: " + message)
+
 def error(message):
     emit("ERROR: " + message)
 
@@ -76,13 +79,16 @@ try:
 except ImportError:
     fatal("Unable to import automationhat python library")
 
-if automationhat.is_automation_hat() or automationhat.is_automation_phat():
+if automationhat.is_automation_hat():
+    debug("Automation HAT Detected")
     automationhat.enable_auto_lights(True)
+elif automationhat.is_automation_phat():
+    debug("Automation pHAT Detected")
 else:
-    fatal("automationHAT/automationPHAT not detected")
+    fatal("automation HAT/automation pHAT not detected")
 
 running = True
-threshold = 0.01;
+threshold = 0.01
 
 stdin = NonBlockingStreamReader(sys.stdin)
 
@@ -104,11 +110,10 @@ last_analog_value = [None,None,None,None,None]
 
 def handle_analog(analog, forceEmit=False):
     global last_analog_value
-
     for analog_channel in analog_index:
         channel = analog_index[analog_channel]
         value = analog[analog_channel]
-        if last_analog_value[channel] is None or abs(last_analog_value[channel] - value) >= threshold or forceEmit:
+        if (last_analog_value[channel] is None) or ((abs(last_analog_value[channel] - value)) >= threshold) or forceEmit:
             last_analog_value[channel] = value
             emit("analog.{}:{}".format(channel,value))
 
@@ -214,11 +219,13 @@ def handle_command(cmd):
             #Do Read Input
             handle_input(automationhat.input.read(), True)
             handle_analog(automationhat.analog.read(), True)
+            return
 
         if cmd.startswith("Set Analog Threshold"):
             cmd, data = cmd.split(":")
             if (float(data) > 0):
                 threshold = float(data)
+            return
 
 while running:
     cmd = stdin.readline(0.1)

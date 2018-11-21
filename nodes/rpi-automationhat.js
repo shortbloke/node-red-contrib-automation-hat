@@ -18,6 +18,10 @@
 module.exports = function(RED) {
     "use strict";
 
+    function REDvDebug(message){
+        if( RED.settings.verbose ) RED.log.info("AutomationHAT: " + message);
+    }
+
     function REDvWarn(message){
         if( RED.settings.verbose ) RED.log.warn("AutomationHAT: " + message);
     }
@@ -60,6 +64,11 @@ module.exports = function(RED) {
                 data = data.trim();
                 if (data.length == 0) return;
 
+                if (data.substring(0,5) == "DEBUG"){
+                    REDvDebug(data);
+                    return;
+                }
+
                 if (data.substring(0,5) == "ERROR"){
                     REDvWarn(data);
                     return;
@@ -99,6 +108,10 @@ module.exports = function(RED) {
             });
 
             hat.stderr.on('data', function(data) {
+                if (data = " UserWarning: Analog Four is not supported on Automation pHAT warnings.warn(\"Analog Four is not supported on Automation pHAT\")"){
+                    REDvWarn("Process Warning: "+data+" :");
+                    return;
+                }
                 REDvWarn("Process Error: "+data+" :");
 
                 hat.stdin.write("stop");
