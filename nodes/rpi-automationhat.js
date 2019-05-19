@@ -41,7 +41,7 @@ module.exports = function(RED) {
         var reconnectTimer = null;
         var disconnectTimeout = null;
         var users = [];
-
+        var msgObj = {};
         if ( !(fs.statSync(cmd).mode & 1) ) {
             throw "Error: '" + cmd + "' must be executable (755)";
         }
@@ -82,14 +82,20 @@ module.exports = function(RED) {
                     if ( data.substring(0,6) == "analog" && (node.send_analog || node.send_reader_analog) ){
                         var channel = data.substring(7,8);
                         var msg = data.split(":")[1];
-
-                        node.send({topic:"automationhat/analog." + channel, payload:Number(msg)});
+                        if(msgObj && msgObj.req && msgObj.res){
+                            node.send({topic:"automationhat/analog." + channel, payload:Number(msg), req : msgObj.req, res : msgObj.res});
+                        } else {
+                            node.send({topic:"automationhat/analog." + channel, payload:Number(msg)});
+                        }
                     }
                     else if ( data.substring(0,5) == "input" && (node.send_input || node.send_reader_input) ){
                         var channel = data.substring(6,7);
                         var msg = data.split(":")[1];
-
-                        node.send({topic:"automationhat/input." + channel, payload:Number(msg)});
+                        if(msgObj && msgObj.req && msgObj.req){
+                            node.send({topic:"automationhat/input." + channel, payload:Number(msg), req : msgObj.req, res: msgObj.res});
+                        } else {
+                            node.send({topic:"automationhat/input." + channel, payload:Number(msg)});
+                        }
                     }
                 });
 
@@ -176,7 +182,8 @@ module.exports = function(RED) {
                     disconnect();
                 }
             },
-            send: function(msg){
+            send: function(msg, _msgObj){
+                msgObj = _msgObj;
                 if(hat) hat.stdin.write(msg+"\n");
             }
         }
@@ -246,7 +253,7 @@ module.exports = function(RED) {
         HAT.open(this);
 
         node.on("input", function(msg) {
-            HAT.send("Reader:" + msg.payload.toString());
+            HAT.send("Reader:" + msg.payload.toString(), msg);
             REDvInfo("Sending Command: " + "Reader:" + msg.payload.toString());
         });
 
