@@ -1,0 +1,396 @@
+[
+    {
+        "id": "b823b76e.f7a568",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "eb7d75a1.eea2e8",
+        "type": "rpi-automation-hat out",
+        "z": "b823b76e.f7a568",
+        "name": "",
+        "x": 1260,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "616dde1e.af029",
+        "type": "inject",
+        "z": "b823b76e.f7a568",
+        "name": "Start",
+        "topic": "",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 80,
+        "wires": [
+            [
+                "dabcc513.49aab8"
+            ]
+        ]
+    },
+    {
+        "id": "5a2a42ab.0dcd9c",
+        "type": "change",
+        "z": "b823b76e.f7a568",
+        "name": "Set False",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 680,
+        "y": 60,
+        "wires": [
+            [
+                "ba727cd4.5a414"
+            ]
+        ]
+    },
+    {
+        "id": "354c76ea.069efa",
+        "type": "switch",
+        "z": "b823b76e.f7a568",
+        "name": "Invert",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 530,
+        "y": 80,
+        "wires": [
+            [
+                "5a2a42ab.0dcd9c"
+            ],
+            [
+                "b234d49.47cfd28"
+            ]
+        ]
+    },
+    {
+        "id": "b234d49.47cfd28",
+        "type": "change",
+        "z": "b823b76e.f7a568",
+        "name": "Set True",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 680,
+        "y": 100,
+        "wires": [
+            [
+                "ba727cd4.5a414"
+            ]
+        ]
+    },
+    {
+        "id": "ba727cd4.5a414",
+        "type": "delay",
+        "z": "b823b76e.f7a568",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 850,
+        "y": 80,
+        "wires": [
+            [
+                "6530348b.aefabc",
+                "d43a55ae.f97ae8"
+            ]
+        ]
+    },
+    {
+        "id": "eebc58cf.d8a428",
+        "type": "debug",
+        "z": "b823b76e.f7a568",
+        "name": "Ouput",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1230,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "6530348b.aefabc",
+        "type": "function",
+        "z": "b823b76e.f7a568",
+        "name": "Toggle each output",
+        "func": "// initialise the counter to 1 if it doesn't exist already\nvar count = context.get('count')||1;\n\n// node.log(\"Input Count: \"+ count + \" State: \"+ msg.payload);\nif (count <= 3) {\n    channel = count;\n    msg.topic = \"relay.\"+ channel;\n} else if (count <= 6) {\n    channel = count - 3;\n    msg.topic = \"output.\"+ channel;\n} else if (count === 7) {\n    msg.topic = \"light.power\";\n} else if (count === 8) {\n    msg.topic = \"light.comms\";\n} else if (count === 9) {\n    msg.topic = \"light.warn\";\n} else {\n    context.set('count',1);  // reset\n    flow.set('stop', true);  // Stop the loop\n}\n\nnode.log(\"Output Count: \"+ count + \" Topic: \"+ msg.topic + \" State: \"+ msg.payload);\n// increment count after each false payload.\nif (msg.payload === false ) {\n    count += 1;\n    // store the value back\n    context.set('count',count);\n    // make it part of the outgoing msg object\n    msg.count = count;\n} \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1050,
+        "y": 80,
+        "wires": [
+            [
+                "eb7d75a1.eea2e8",
+                "eebc58cf.d8a428"
+            ]
+        ]
+    },
+    {
+        "id": "dabcc513.49aab8",
+        "type": "function",
+        "z": "b823b76e.f7a568",
+        "name": "Initialise",
+        "func": "flow.set('stop', false);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 240,
+        "y": 80,
+        "wires": [
+            [
+                "d43a55ae.f97ae8"
+            ]
+        ]
+    },
+    {
+        "id": "d43a55ae.f97ae8",
+        "type": "switch",
+        "z": "b823b76e.f7a568",
+        "name": "",
+        "property": "stop",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 390,
+        "y": 80,
+        "wires": [
+            [
+                "354c76ea.069efa"
+            ]
+        ]
+    },
+    {
+        "id": "c37e93d4.2e8c1",
+        "type": "comment",
+        "z": "b823b76e.f7a568",
+        "name": "Test outputs",
+        "info": "",
+        "x": 90,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "ebe3b919.869268",
+        "type": "rpi-automation-hat in",
+        "z": "b823b76e.f7a568",
+        "name": "",
+        "input": true,
+        "analog": true,
+        "threshold": 0.01,
+        "x": 100,
+        "y": 280,
+        "wires": [
+            [
+                "f7f92f23.5e28c"
+            ]
+        ]
+    },
+    {
+        "id": "f7f92f23.5e28c",
+        "type": "switch",
+        "z": "b823b76e.f7a568",
+        "name": "Switch on Topic",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "input",
+                "vt": "str"
+            },
+            {
+                "t": "cont",
+                "v": "analog",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 300,
+        "y": 280,
+        "wires": [
+            [
+                "b3bc93b7.8733d"
+            ],
+            [
+                "5f4790ec.addf"
+            ],
+            [
+                "f17ed1.d88d313"
+            ]
+        ]
+    },
+    {
+        "id": "b3bc93b7.8733d",
+        "type": "debug",
+        "z": "b823b76e.f7a568",
+        "name": "Type: Input",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 490,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "5f4790ec.addf",
+        "type": "debug",
+        "z": "b823b76e.f7a568",
+        "name": "Type: Analog",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 490,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "f17ed1.d88d313",
+        "type": "debug",
+        "z": "b823b76e.f7a568",
+        "name": "Unexpected Type",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 510,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "6dd35d94.9a6304",
+        "type": "comment",
+        "z": "b823b76e.f7a568",
+        "name": "Test inputs",
+        "info": "",
+        "x": 80,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "5bcb869c.4709a8",
+        "type": "rpi-automation-hat reader",
+        "z": "b823b76e.f7a568",
+        "name": "",
+        "input": true,
+        "analog": true,
+        "x": 260,
+        "y": 460,
+        "wires": [
+            [
+                "8b453431.795d88"
+            ]
+        ]
+    },
+    {
+        "id": "8b453431.795d88",
+        "type": "debug",
+        "z": "b823b76e.f7a568",
+        "name": "Reader",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 440,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "a645218f.ca5cf",
+        "type": "inject",
+        "z": "b823b76e.f7a568",
+        "name": "Read",
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 460,
+        "wires": [
+            [
+                "5bcb869c.4709a8"
+            ]
+        ]
+    },
+    {
+        "id": "5cf20c0.263eaf4",
+        "type": "comment",
+        "z": "b823b76e.f7a568",
+        "name": "Test Reader",
+        "info": "",
+        "x": 90,
+        "y": 400,
+        "wires": []
+    }
+]
