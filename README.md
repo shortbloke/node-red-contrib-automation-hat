@@ -1,6 +1,6 @@
 # Node-RED nodes for Pimoroni Automation HAT/pHAT
 
-![Pimoroni Automation HAT](/images/Automation_HAT_512x512.jpg)
+![Pimoroni Automation HAT](/images/Automation_HAT_512x512_trans.png)
 
 ## Provides nodes
 
