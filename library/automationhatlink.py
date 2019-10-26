@@ -20,16 +20,25 @@ import sys
 from threading import Thread, Event
 from queue import Queue, Empty
 
-analog_index = {'one':1, 'two':2, 'three':3} # Exclude ADC4, appears to be floating and easily triggered by noise.
-last_analog_value = [None,None,None,None,None]
-input_index = {'one':1, 'two':2, 'three':3}
-input_last_value = [None,None,None,None] # Four elements, since we don't use 0 just 1, 2 and 3. 
+analog_index = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+}  # Exclude ADC4, appears to be floating and easily triggered by noise.
+last_analog_value = [None, None, None, None, None]
+input_index = {"one": 1, "two": 2, "three": 3}
+input_last_value = [
+    None,
+    None,
+    None,
+    None,
+]  # Four elements, since we don't use 0 just 1, 2 and 3.
 
-output_index = ['one','two','three']
-light_index = ['power','comms','warn']
-on_values = ['1', 'on', 'enable', 'true']
-off_values = ['0', 'off', 'disable', 'false']
-toggle_values = ['toggle']
+output_index = ["one", "two", "three"]
+light_index = ["power", "comms", "warn"]
+on_values = ["1", "on", "enable", "true"]
+off_values = ["0", "off", "disable", "false"]
+toggle_values = ["toggle"]
 
 running = True
 threshold = 0.01
@@ -41,43 +50,44 @@ except ImportError:
 
 if automationhat.is_automation_hat():
     debug("Automation HAT Detected")
-    relay_index = ['one','two','three']
+    relay_index = ["one", "two", "three"]
     automationhat.enable_auto_lights(True)
 elif automationhat.is_automation_phat():
     debug("Automation pHAT Detected")
-    relay_index = ['one']
+    relay_index = ["one"]
 else:
     fatal("automation HAT/automation pHAT not detected")
 
-class NonBlockingStreamReader:
 
+class NonBlockingStreamReader:
     def __init__(self, stream):
-        '''
+        """
         stream: the stream to read from.
                 Usually a process' stdout or stderr.
-        '''
+        """
 
         self._s = stream
         self._q = Queue()
         self._stop_event = Event()
 
         def _populateQueue(stream, queue, stop_event):
-            '''
+            """
             Collect lines from 'stream' and put them in 'queue'.
-            '''
+            """
             while not stop_event.is_set():
                 line = stream.readline()
                 if line:
                     queue.put(line)
 
-        self._t = Thread(target = _populateQueue,
-                args = (self._s, self._q, self._stop_event))
+        self._t = Thread(
+            target=_populateQueue, args=(self._s, self._q, self._stop_event)
+        )
         self._t.daemon = True
-        self._t.start() #start collecting lines from the stream
+        self._t.start()  # start collecting lines from the stream
 
-    def readline(self, timeout = None):
+    def readline(self, timeout=None):
         try:
-            return self._q.get(block = timeout is not None, timeout = timeout)
+            return self._q.get(block=timeout is not None, timeout=timeout)
         except Empty:
             return None
 
@@ -88,15 +98,19 @@ class NonBlockingStreamReader:
 def millis():
     return int(round(time.time() * 1000))
 
+
 def emit(message):
     sys.stdout.write(message + "\n")
     sys.stdout.flush()
 
+
 def debug(message):
     emit("DEBUG: " + message)
 
+
 def error(message):
     emit("ERROR: " + message)
+
 
 def fatal(message):
     emit("FATAL: " + message)
@@ -107,10 +121,18 @@ def handle_input(buffered_input, forceEmit=False):
     global input_last_value
 
     for input_channel in input_index:
-        if input_last_value[input_index[input_channel]] != buffered_input[input_channel] or forceEmit: # Input value changed
+        if (
+            input_last_value[input_index[input_channel]]
+            != buffered_input[input_channel]
+            or forceEmit
+        ):  # Input value changed
             # This will always trigger on 1st run as values are changed from None to 0 or 1.
             input_last_value[input_index[input_channel]] = buffered_input[input_channel]
-            emit("input.{}:{}".format(input_index[input_channel],buffered_input[input_channel]))
+            emit(
+                "input.{}:{}".format(
+                    input_index[input_channel], buffered_input[input_channel]
+                )
+            )
 
 
 def handle_analog(analog, forceEmit=False):
@@ -119,9 +141,13 @@ def handle_analog(analog, forceEmit=False):
     for analog_channel in analog_index:
         channel = analog_index[analog_channel]
         value = analog[analog_channel]
-        if (last_analog_value[channel] is None) or ((abs(last_analog_value[channel] - value)) >= threshold) or forceEmit:
+        if (
+            (last_analog_value[channel] is None)
+            or ((abs(last_analog_value[channel] - value)) >= threshold)
+            or forceEmit
+        ):
             last_analog_value[channel] = value
-            emit("analog.{}:{}".format(channel,value))
+            emit("analog.{}:{}".format(channel, value))
 
 
 def handle_command(cmd):
@@ -216,16 +242,17 @@ def handle_command(cmd):
             running = False
 
         if cmd.startswith("Reader"):
-            #Do Read Input
+            # Do Read Input
             handle_input(automationhat.input.read(), True)
             handle_analog(automationhat.analog.read(), True)
             return
 
         if cmd.startswith("Set Analog Threshold"):
             cmd, data = cmd.split(":")
-            if (float(data) > 0):
+            if float(data) > 0:
                 threshold = float(data)
             return
+
 
 stdin = NonBlockingStreamReader(sys.stdin)
 while running:
