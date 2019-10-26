@@ -16,9 +16,10 @@
 
 ## More Information
 
-Check out [my blog post](https://www.martinrowan.co.uk/2018/09/node-red-support-for-pimoroni-automation-hat-phat/) for this new Node Package for some background and examples.
+More information and examples of using this node can be found in my blog post [www.martinrowan.co.uk](https://www.martinrowan.co.uk/2018/09/node-red-support-for-pimoroni-automation-hat-phat/). Hopefully this will provide some inspiration.
 
 ### Where to buy
+
 * [Pimoroni Automation HAT](https://shop.pimoroni.com/products/automation-hat)
 * [Pimoroni Automation pHAT](https://shop.pimoroni.com/products/automation-phat)
 
