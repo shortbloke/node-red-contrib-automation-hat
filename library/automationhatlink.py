@@ -159,9 +159,6 @@ def handle_command(cmd):
             if channel in relay_index:
                 channel = relay_index.index(channel)
             else:
-                channel = int(channel) - 1
-
-            if channel < 0 or channel > 2:
                 error("Invalid channel: " + str(channel))
                 return
 
