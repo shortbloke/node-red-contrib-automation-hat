@@ -43,21 +43,6 @@ toggle_values = ["toggle"]
 running = True
 threshold = 0.01
 
-try:
-    import automationhat
-except ImportError:
-    fatal("Unable to import automationhat python library")
-
-if automationhat.is_automation_hat():
-    debug("Automation HAT Detected")
-    relay_index = ["one", "two", "three"]
-    automationhat.enable_auto_lights(True)
-elif automationhat.is_automation_phat():
-    debug("Automation pHAT Detected")
-    relay_index = ["one"]
-else:
-    fatal("automation HAT/automation pHAT not detected")
-
 
 class NonBlockingStreamReader:
     def __init__(self, stream):
@@ -254,7 +239,23 @@ def handle_command(cmd):
             return
 
 
+try:
+    import automationhat
+except ImportError:
+    fatal("Unable to import automationhat python library")
+
+if automationhat.is_automation_hat():
+    debug("Automation HAT Detected")
+    relay_index = ["one", "two", "three"]
+    automationhat.enable_auto_lights(True)
+elif automationhat.is_automation_phat():
+    debug("Automation pHAT Detected")
+    relay_index = ["one"]
+else:
+    fatal("automation HAT/automation pHAT not detected")
+
 stdin = NonBlockingStreamReader(sys.stdin)
+
 while running:
     cmd = stdin.readline(0.1)
     handle_command(cmd)
