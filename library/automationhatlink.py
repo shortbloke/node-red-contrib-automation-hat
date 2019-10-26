@@ -20,6 +20,35 @@ import sys
 from threading import Thread, Event
 from queue import Queue, Empty
 
+analog_index = {'one':1, 'two':2, 'three':3} # Exclude ADC4, appears to be floating and easily triggered by noise.
+last_analog_value = [None,None,None,None,None]
+input_index = {'one':1, 'two':2, 'three':3}
+input_last_value = [None,None,None,None] # Four elements, since we don't use 0 just 1, 2 and 3. 
+
+output_index = ['one','two','three']
+light_index = ['power','comms','warn']
+on_values = ['1', 'on', 'enable', 'true']
+off_values = ['0', 'off', 'disable', 'false']
+toggle_values = ['toggle']
+
+running = True
+threshold = 0.01
+
+try:
+    import automationhat
+except ImportError:
+    fatal("Unable to import automationhat python library")
+
+if automationhat.is_automation_hat():
+    debug("Automation HAT Detected")
+    relay_index = ['one','two','three']
+    automationhat.enable_auto_lights(True)
+elif automationhat.is_automation_phat():
+    debug("Automation pHAT Detected")
+    relay_index = ['one']
+else:
+    fatal("automation HAT/automation pHAT not detected")
+
 class NonBlockingStreamReader:
 
     def __init__(self, stream):
@@ -74,27 +103,6 @@ def fatal(message):
     sys.exit(1)
 
 
-try:
-    import automationhat
-except ImportError:
-    fatal("Unable to import automationhat python library")
-
-if automationhat.is_automation_hat():
-    debug("Automation HAT Detected")
-    automationhat.enable_auto_lights(True)
-elif automationhat.is_automation_phat():
-    debug("Automation pHAT Detected")
-else:
-    fatal("automation HAT/automation pHAT not detected")
-
-running = True
-threshold = 0.01
-
-stdin = NonBlockingStreamReader(sys.stdin)
-
-input_index = {'one':1, 'two':2, 'three':3}
-input_last_value = [None,None,None,None] # Four elements, since we don't use 0 just 1, 2 and 3. 
-
 def handle_input(buffered_input, forceEmit=False):
     global input_last_value
 
@@ -104,12 +112,10 @@ def handle_input(buffered_input, forceEmit=False):
             input_last_value[input_index[input_channel]] = buffered_input[input_channel]
             emit("input.{}:{}".format(input_index[input_channel],buffered_input[input_channel]))
 
-# analog_index = {'one':1, 'two':2, 'three':3, 'four':4}
-analog_index = {'one':1, 'two':2, 'three':3} # Exclude ADC4, appears to be floating and easily triggered by noise.
-last_analog_value = [None,None,None,None,None]
 
 def handle_analog(analog, forceEmit=False):
     global last_analog_value
+
     for analog_channel in analog_index:
         channel = analog_index[analog_channel]
         value = analog[analog_channel]
@@ -117,12 +123,6 @@ def handle_analog(analog, forceEmit=False):
             last_analog_value[channel] = value
             emit("analog.{}:{}".format(channel,value))
 
-relay_index = ['one','two','three']
-output_index = ['one','two','three']
-light_index = ['power','comms','warn']
-on_values = ['1', 'on', 'enable', 'true']
-off_values = ['0', 'off', 'disable', 'false']
-toggle_values = ['toggle']
 
 def handle_command(cmd):
     global running
@@ -227,6 +227,7 @@ def handle_command(cmd):
                 threshold = float(data)
             return
 
+stdin = NonBlockingStreamReader(sys.stdin)
 while running:
     cmd = stdin.readline(0.1)
     handle_command(cmd)
