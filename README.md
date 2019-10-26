@@ -1,6 +1,6 @@
 # Node-RED nodes for Pimoroni Automation HAT/pHAT
 
-[Pimoroni Automation HAT](https://raw.githubusercontent.com/shortbloke/node-red-contrib-automation-hat/master/images/Automation_HAT_1_of_3_1024x1024.jpg)
+![Pimoroni Automation HAT](/images/Automation_HAT_512x512.jpg)
 
 ## Provides nodes
 
@@ -38,11 +38,19 @@ curl https://get.pimoroni.com/automationhat | bash
 
 ### Automation HAT Node-RED
 
+#### Installation via Node-Red
+
+Run Node-Red and open setting menu, and select Manage palette. Select the install tab, and enter `node-red-automation-hat`
+
+![Install via Node-Red](images/install_via_node_red.jpg)
+
 #### Installation via NPM
 
 ``` bash
 npm install node-red-contrib-automation-hat
 ```
+
+After installing via `npm` you will need to restart Node-Red
 
 #### Installation from latest source on GitHub
 
@@ -53,8 +61,10 @@ To install this node you should:
     ``` bash
     cd ~/.node-red/node_modules
     ```
+
     _Note: older node installation may use the location: `~/.node-red/nodes`):_
 * Clone this repository:
+
     ``` bash
     git clone https://github.com/shortbloke/node-red-contrib-automation-hat
     ```
