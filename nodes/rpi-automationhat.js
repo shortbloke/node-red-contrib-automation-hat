@@ -115,7 +115,7 @@ module.exports = function(RED) {
 
             hat.stderr.on('data', function(data) {
                 if (data = " UserWarning: Analog Four is not supported on Automation pHAT warnings.warn(\"Analog Four is not supported on Automation pHAT\")"){
-                    REDvWarn("Process Warning: "+data+" :");
+                    // REDvWarn("Process Warning: "+data+" :");
                     return;
                 }
                 REDvWarn("Process Error: "+data+" :");
