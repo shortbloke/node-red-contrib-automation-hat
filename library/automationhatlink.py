@@ -21,14 +21,21 @@ from threading import Thread, Event
 from queue import Queue, Empty
 
 channel_commands = ["light", "output", "relay"]
-property_commands = ["auto_lights", "reader", "set analog threshold"]
+property_commands = ["auto_lights", "reader", "set analog threshold", "set adc4 threshold"]
 basic_commands = ["stop"]
 
 channels = {
     "one": 1,
     "two": 2,
     "three": 3,
-}  # Exclude ADC4, appears to be floating and easily triggered by noise.
+}
+
+analog_inputs = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+}
+
 lights = {"power": 1, "comms": 2, "warn": 3}
 last_analog_value = [None, None, None, None, None]
 input_last_value = [
@@ -43,7 +50,10 @@ off_values = ["0", "off", "disable", "false"]
 toggle_values = ["toggle"]
 
 running = True
-threshold = 0.01
+# Thresholds set fairly high, as noisy when floating
+threshold = 0.1  
+adc4_threshold = 0.1
+
 device = "Unknown Device"
 
 
@@ -123,13 +133,18 @@ def handle_input(buffered_input, forceEmit=False):
 
 def handle_analog(analog, forceEmit=False):
     global last_analog_value
+    global threshold
+
     emit_message = False
-    for analog_channel in channels:
-        channel = channels[analog_channel]
+    for analog_channel in analog_inputs:
+        channel = analog_inputs[analog_channel]
         value = analog[analog_channel]
+        trigger_threshold = threshold
+        if channel == 4:
+            trigger_threshold = adc4_threshold
         if last_analog_value[channel] is None:
             emit_message = True  # Read on 1st read/startup
-        elif (abs(last_analog_value[channel] - value)) >= threshold:
+        elif (abs(last_analog_value[channel] - value)) >= trigger_threshold:
             emit_message = True  # Value has changed by more than the threshold
         if forceEmit:
             emit_message = True
@@ -142,6 +157,7 @@ def handle_analog(analog, forceEmit=False):
 def handle_command(command):
     global running
     global threshold
+    global adc4_threshold
 
     if command is not None:
         cmd = command.strip().lower()
@@ -167,6 +183,8 @@ def handle_command(command):
                 handle_analog(automationhat.analog.read(), True)
             elif (cmd == "set analog threshold") and (float(data) > 0):
                 threshold = float(data)
+            elif (cmd == "set adc4 threshold") and (float(data) > 0):
+                adc4_threshold = float(data)
             return
 
         cmd, channel = cmd.split(".")
@@ -236,6 +254,7 @@ except ImportError:
 
 if automationhat.is_automation_hat():
     device = "HAT"
+    analog_inputs.update({"four": 4})
     relay_count = 3
     light_count = 3
     output_count = 3
