@@ -128,7 +128,7 @@ def handle_analog(analog, forceEmit=False):
         channel = channels[analog_channel]
         value = analog[analog_channel]
         if last_analog_value[channel] is None:
-            emit_message = False  # Supress emit on 1st read/startup
+            emit_message = True  # Read on 1st read/startup
         elif (abs(last_analog_value[channel] - value)) >= threshold:
             emit_message = True  # Value has changed by more than the threshold
         if forceEmit:
