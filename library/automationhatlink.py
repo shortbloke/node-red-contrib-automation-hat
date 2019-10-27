@@ -155,7 +155,7 @@ def handle_command(command):
                 running = False
             return
 
-        elif cmd in property_commands:
+        if cmd in property_commands:
             # Property setting command
             if cmd == "auto_lights":
                 if data in on_values:
@@ -169,9 +169,10 @@ def handle_command(command):
                 threshold = float(data)
             return
 
-        elif cmd in channel_commands:
+        cmd, channel = cmd.split(".")
+        if cmd in channel_commands:
             # Channel based command
-            cmd, channel = cmd.split(".")
+
             if channel in channels:
                 channel = channels[channel]
             elif channel in lights:
