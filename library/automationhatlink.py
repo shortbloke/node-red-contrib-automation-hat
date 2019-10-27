@@ -20,35 +20,62 @@ import sys
 from threading import Thread, Event
 from queue import Queue, Empty
 
-class NonBlockingStreamReader:
+channel_commands = ["light", "output", "relay"]
+property_commands = ["auto_lights", "reader", "set analog threshold"]
+basic_commands = ["stop"]
 
+channels = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+}  # Exclude ADC4, appears to be floating and easily triggered by noise.
+lights = {"power": 1, "comms": 2, "warn": 3}
+last_analog_value = [None, None, None, None, None]
+input_last_value = [
+    None,
+    None,
+    None,
+    None,
+]  # Four elements, since we don't use 0 just 1, 2 and 3.
+
+on_values = ["1", "on", "enable", "true"]
+off_values = ["0", "off", "disable", "false"]
+toggle_values = ["toggle"]
+
+running = True
+threshold = 0.01
+device = "Unknown Device"
+
+
+class NonBlockingStreamReader:
     def __init__(self, stream):
-        '''
+        """
         stream: the stream to read from.
                 Usually a process' stdout or stderr.
-        '''
+        """
 
         self._s = stream
         self._q = Queue()
         self._stop_event = Event()
 
         def _populateQueue(stream, queue, stop_event):
-            '''
+            """
             Collect lines from 'stream' and put them in 'queue'.
-            '''
+            """
             while not stop_event.is_set():
                 line = stream.readline()
                 if line:
                     queue.put(line)
 
-        self._t = Thread(target = _populateQueue,
-                args = (self._s, self._q, self._stop_event))
+        self._t = Thread(
+            target=_populateQueue, args=(self._s, self._q, self._stop_event)
+        )
         self._t.daemon = True
-        self._t.start() #start collecting lines from the stream
+        self._t.start()  # start collecting lines from the stream
 
-    def readline(self, timeout = None):
+    def readline(self, timeout=None):
         try:
-            return self._q.get(block = timeout is not None, timeout = timeout)
+            return self._q.get(block=timeout is not None, timeout=timeout)
         except Empty:
             return None
 
@@ -56,22 +83,150 @@ class NonBlockingStreamReader:
         self._stop_event.set()
 
 
-def millis():
-    return int(round(time.time() * 1000))
-
 def emit(message):
     sys.stdout.write(message + "\n")
     sys.stdout.flush()
 
+
 def debug(message):
-    emit("DEBUG: " + message)
+    emit("DEBUG({}): {}".format(device, message))
+
 
 def error(message):
-    emit("ERROR: " + message)
+    emit("ERROR({}): {}".format(device, message))
+
 
 def fatal(message):
-    emit("FATAL: " + message)
+    emit("FATAL({}): {}".format(device, message))
     sys.exit(1)
+
+
+def handle_input(buffered_input, forceEmit=False):
+    global input_last_value
+    emit_message = False
+    for input_channel in channels:
+        if input_last_value[channels[input_channel]] is None:
+            emit_message = False  # Supress emit on 1st read/startup
+        elif input_last_value[channels[input_channel]] != buffered_input[input_channel]:
+            emit_message = True  # Value has changed
+        if forceEmit:
+            emit_message = True
+
+        input_last_value[channels[input_channel]] = buffered_input[input_channel]
+        if emit_message:
+            emit(
+                "input.{}:{}".format(
+                    channels[input_channel], buffered_input[input_channel]
+                )
+            )
+
+
+def handle_analog(analog, forceEmit=False):
+    global last_analog_value
+    emit_message = False
+    for analog_channel in channels:
+        channel = channels[analog_channel]
+        value = analog[analog_channel]
+        if last_analog_value[channel] is None:
+            emit_message = False  # Supress emit on 1st read/startup
+        elif (abs(last_analog_value[channel] - value)) >= threshold:
+            emit_message = True  # Value has changed by more than the threshold
+        if forceEmit:
+            emit_message = True
+
+        last_analog_value[channel] = value
+        if emit_message:
+            emit("analog.{}:{}".format(channel, value))
+
+
+def handle_command(command):
+    global running
+    global threshold
+
+    if command is not None:
+        cmd = command.strip().lower()
+        if ":" in cmd:
+            cmd, data = cmd.split(":")
+
+        if cmd in basic_commands:
+            # Basic action command
+            if cmd == "stop":
+                stdin.stop()
+                running = False
+            return
+
+        if cmd in property_commands:
+            # Property setting command
+            if cmd == "auto_lights":
+                if data in on_values:
+                    automationhat.enable_auto_lights(True)
+                else:
+                    automationhat.enable_auto_lights(False)
+            elif cmd == "reader":
+                handle_input(automationhat.input.read(), True)
+                handle_analog(automationhat.analog.read(), True)
+            elif (cmd == "set analog threshold") and (float(data) > 0):
+                threshold = float(data)
+            return
+
+        cmd, channel = cmd.split(".")
+        if cmd in channel_commands:
+            # Channel based command
+
+            if channel in channels:
+                channel = channels[channel]
+            elif channel in lights:
+                channel = lights[channel]
+            else:
+                channel = int(channel)
+            index = channel - 1
+            if cmd == "light":
+                if automationhat.is_automation_phat():
+                    error("Automation pHAT does not support lights")
+                    return
+                if (channel <= 0) or (channel > light_count):
+                    error("Invalid light channel: {}".format(channel))
+                    return
+                if data in on_values:
+                    automationhat.light[index].on()
+                elif data in off_values:
+                    automationhat.light[index].off()
+                elif data in toggle_values:
+                    automationhat.light[index].toggle()
+                else:
+                    error("Unhandled light value: '{}'".format(data))
+            elif cmd == "output":
+                if (channel <= 0) or (channel > output_count):
+                    error("Invalid output channel: {}".format(channel))
+                    return
+                if data in on_values:
+                    automationhat.output[index].on()
+                elif data in off_values:
+                    automationhat.output[index].off()
+                elif data in toggle_values:
+                    automationhat.output[index].toggle()
+                else:
+                    error("Unhandled output value: '{}'".format(data))
+            elif cmd == "relay":
+                if (channel <= 0) or (channel > relay_count):
+                    if (automationhat.is_automation_phat()) and (channel > relay_count):
+                        error("Automation pHAT only has a single relay")
+                    else:
+                        error("Invalid relay channel: {}".format(channel))
+                    return
+                if data in on_values:
+                    automationhat.relay[index].on()
+                elif data in off_values:
+                    automationhat.relay[index].off()
+                elif data in toggle_values:
+                    automationhat.relay[index].toggle()
+                else:
+                    error("Unhandled relay value: '{}'".format(data))
+            return
+        else:
+            # Invalid  command
+            debug("Ignored command: {}".format(command))
+            return
 
 
 try:
@@ -80,152 +235,22 @@ except ImportError:
     fatal("Unable to import automationhat python library")
 
 if automationhat.is_automation_hat():
-    debug("Automation HAT Detected")
+    device = "HAT"
+    relay_count = 3
+    light_count = 3
+    output_count = 3
     automationhat.enable_auto_lights(True)
+    debug("Automation HAT Detected")
 elif automationhat.is_automation_phat():
+    device = "pHAT"
+    relay_count = 1
+    light_count = 0
+    output_count = 3
     debug("Automation pHAT Detected")
 else:
-    fatal("automation HAT/automation pHAT not detected")
-
-running = True
-threshold = 0.01
+    fatal("Automation HAT/Automation pHAT not detected")
 
 stdin = NonBlockingStreamReader(sys.stdin)
-
-input_index = {'one':1, 'two':2, 'three':3}
-input_last_value = [None,None,None,None] # Four elements, since we don't use 0 just 1, 2 and 3. 
-
-def handle_input(buffered_input, forceEmit=False):
-    global input_last_value
-
-    for input_channel in input_index:
-        if input_last_value[input_index[input_channel]] != buffered_input[input_channel] or forceEmit: # Input value changed
-            # This will always trigger on 1st run as values are changed from None to 0 or 1.
-            input_last_value[input_index[input_channel]] = buffered_input[input_channel]
-            emit("input.{}:{}".format(input_index[input_channel],buffered_input[input_channel]))
-
-# analog_index = {'one':1, 'two':2, 'three':3, 'four':4}
-analog_index = {'one':1, 'two':2, 'three':3} # Exclude ADC4, appears to be floating and easily triggered by noise.
-last_analog_value = [None,None,None,None,None]
-
-def handle_analog(analog, forceEmit=False):
-    global last_analog_value
-    for analog_channel in analog_index:
-        channel = analog_index[analog_channel]
-        value = analog[analog_channel]
-        if (last_analog_value[channel] is None) or ((abs(last_analog_value[channel] - value)) >= threshold) or forceEmit:
-            last_analog_value[channel] = value
-            emit("analog.{}:{}".format(channel,value))
-
-relay_index = ['one','two','three']
-output_index = ['one','two','three']
-light_index = ['power','comms','warn']
-on_values = ['1', 'on', 'enable', 'true']
-off_values = ['0', 'off', 'disable', 'false']
-toggle_values = ['toggle']
-
-def handle_command(cmd):
-    global running
-    global threshold
-
-    if cmd is not None:
-        cmd = cmd.strip()
-
-        if cmd.startswith("auto_lights") and ":" in cmd:
-            # ToDo: Allow control of autolights for each of input, output, relay and analog
-            cmd, data = cmd.split(":")
-            # channel = cmd.split(".")[1]
-            if data in on_values:
-                automationhat.enable_auto_lights(True)
-            else:
-                automationhat.enable_auto_lights(False)
-            return
-
-        if cmd.startswith("relay") and ":" in cmd:
-            cmd, data = cmd.split(":")
-            channel = cmd.split(".")[1]
-
-            if channel in relay_index:
-                channel = relay_index.index(channel)
-            else:
-                channel = int(channel) - 1
-
-            if channel < 0 or channel > 2:
-                error("Invalid channel: " + str(channel))
-                return
-
-            if data in on_values:
-                automationhat.relay[channel].on()
-            elif data in off_values:
-                automationhat.relay[channel].off()
-            elif data in toggle_values:
-                automationhat.relay[channel].toggle()
-            else:
-                error("Unhandled relay value: '" + data + "'")
-            return
-
-        if cmd.startswith("output") and ":" in cmd:
-            cmd, data = cmd.split(":")
-            channel = cmd.split(".")[1]
-
-            if channel in output_index:
-                channel = output_index.index(channel)
-            else:
-                channel = int(channel) - 1
-
-            if channel < 0 or channel > 2:
-                error("Invalid channel: " + str(channel))
-                return
-
-            if data in on_values:
-                automationhat.output[channel].on()
-            elif data in off_values:
-                automationhat.output[channel].off()
-            elif data in toggle_values:
-                automationhat.output[channel].toggle()
-            else:
-                error("Unhandled output value: '" + data + "'")
-            return
-
-        if cmd.startswith("light.") and ":" in cmd:
-            # ToDo: This doesn't support switching only specific lights associated with the input/output/relays.
-            cmd, data = cmd.split(":")
-            channel = cmd.split(".")[1]
-
-            if channel in light_index:
-                channel = light_index.index(channel)
-            else:
-                channel = int(channel) - 1
-
-            if channel < 0 or channel > 2:
-                error("Invalid channel: " + str(channel))
-                return
-
-            if data in on_values:
-                automationhat.light[channel].on()
-            elif data in off_values:
-                automationhat.light[channel].off()
-            elif data in toggle_values:
-                automationhat.light[channel].toggle()
-            else:
-                error("Unhandled output value: '" + data + "'")
-            return
-
-        if cmd == "stop":
-            stdin.stop()
-            running = False
-
-        if cmd.startswith("Reader"):
-            #Do Read Input
-            handle_input(automationhat.input.read(), True)
-            handle_analog(automationhat.analog.read(), True)
-            return
-
-        if cmd.startswith("Set Analog Threshold"):
-            cmd, data = cmd.split(":")
-            if (float(data) > 0):
-                threshold = float(data)
-            return
 
 while running:
     cmd = stdin.readline(0.1)

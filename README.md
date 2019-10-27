@@ -72,14 +72,6 @@ To install this node you should:
 
 * Start Node-Red and you should see the new Automation HAT nodes within the Raspberry Pi section.
 
-## To Do
-
-In no particular order:
-
-* Consider splitting input and outputs types into separate node files
-* Add support for controlling light brightness via `write` command
-* Add support for controlling each individual indicator light for each input and output
-
 ## References
 
 This project is based on the [ExplorerHAT node implementation published by Pimoroni](https://github.com/pimoroni/node-red-nodes)

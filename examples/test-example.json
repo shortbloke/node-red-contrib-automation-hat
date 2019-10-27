@@ -1,0 +1,796 @@
+[
+    {
+        "id": "1265e8cb.0ad5e7",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "d49582b9.8691d",
+        "type": "rpi-automation-hat out",
+        "z": "1265e8cb.0ad5e7",
+        "name": "",
+        "x": 1420,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "9e6638b1.8dfcd8",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Start",
+        "topic": "",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 80,
+        "wires": [
+            [
+                "3b8151f2.8ef37e"
+            ]
+        ]
+    },
+    {
+        "id": "bcf6afec.4d6ac",
+        "type": "change",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Set False",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 680,
+        "y": 60,
+        "wires": [
+            [
+                "23ef32a.edfdbce"
+            ]
+        ]
+    },
+    {
+        "id": "10da9c65.835a14",
+        "type": "switch",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Invert",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 530,
+        "y": 80,
+        "wires": [
+            [
+                "bcf6afec.4d6ac"
+            ],
+            [
+                "861c3a54.daa358"
+            ]
+        ]
+    },
+    {
+        "id": "861c3a54.daa358",
+        "type": "change",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Set True",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 680,
+        "y": 100,
+        "wires": [
+            [
+                "23ef32a.edfdbce"
+            ]
+        ]
+    },
+    {
+        "id": "23ef32a.edfdbce",
+        "type": "delay",
+        "z": "1265e8cb.0ad5e7",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.3",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 850,
+        "y": 80,
+        "wires": [
+            [
+                "82220583.338f08",
+                "96ab73.6ab1049"
+            ]
+        ]
+    },
+    {
+        "id": "41460f8b.87c3b",
+        "type": "debug",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Ouput",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1250,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "82220583.338f08",
+        "type": "function",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Toggle each output",
+        "func": "// initialise the counter to 1 if it doesn't exist already\nvar count = context.get('count')||1;\n\n// node.log(\"Input Count: \"+ count + \" State: \"+ msg.payload);\nif (count <= 3) {\n    channel = count;\n    msg.topic = \"relay.\"+ channel;\n} else if (count <= 6) {\n    channel = count - 3;\n    msg.topic = \"output.\"+ channel;\n} else if (count === 7) {\n    msg.topic = \"light.power\";\n} else if (count === 8) {\n    msg.topic = \"light.comms\";\n} else if (count === 9) {\n    msg.topic = \"light.warn\";\n} else {\n    context.set('count',1);  // reset\n    flow.set('stop', true);  // Stop the loop\n    return;\n}\n\nnode.log(\"Output Count: \"+ count + \" Topic: \"+ msg.topic + \" State: \"+ msg.payload);\n// increment count after each false payload.\nif (msg.payload === false ) {\n    count += 1;\n    // store the value back\n    context.set('count',count);\n    // make it part of the outgoing msg object\n    msg.count = count;\n} \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1050,
+        "y": 80,
+        "wires": [
+            [
+                "d49582b9.8691d",
+                "41460f8b.87c3b"
+            ]
+        ]
+    },
+    {
+        "id": "3b8151f2.8ef37e",
+        "type": "function",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Initialise",
+        "func": "flow.set('stop', false);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 240,
+        "y": 80,
+        "wires": [
+            [
+                "96ab73.6ab1049"
+            ]
+        ]
+    },
+    {
+        "id": "96ab73.6ab1049",
+        "type": "switch",
+        "z": "1265e8cb.0ad5e7",
+        "name": "",
+        "property": "stop",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 390,
+        "y": 80,
+        "wires": [
+            [
+                "10da9c65.835a14"
+            ]
+        ]
+    },
+    {
+        "id": "dc54e9ce.a9c898",
+        "type": "comment",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Test outputs",
+        "info": "",
+        "x": 90,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "e4df2670.553608",
+        "type": "rpi-automation-hat in",
+        "z": "1265e8cb.0ad5e7",
+        "name": "",
+        "input": true,
+        "analog": true,
+        "threshold": "0.2",
+        "x": 100,
+        "y": 900,
+        "wires": [
+            [
+                "dcefc3c8.eb305"
+            ]
+        ]
+    },
+    {
+        "id": "dcefc3c8.eb305",
+        "type": "switch",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Switch on Topic",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "input",
+                "vt": "str"
+            },
+            {
+                "t": "cont",
+                "v": "analog",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 300,
+        "y": 900,
+        "wires": [
+            [
+                "71f83e94.1f95c"
+            ],
+            [
+                "bb58082c.e3efb8"
+            ],
+            [
+                "e490865c.7d1aa8"
+            ]
+        ]
+    },
+    {
+        "id": "71f83e94.1f95c",
+        "type": "debug",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Type: Input",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 490,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "bb58082c.e3efb8",
+        "type": "debug",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Type: Analog",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 490,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "e490865c.7d1aa8",
+        "type": "debug",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Unexpected Type",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 510,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "63762c7a.19a574",
+        "type": "comment",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Test inputs",
+        "info": "",
+        "x": 80,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "4ce09e18.2c4d1",
+        "type": "comment",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Test Reader",
+        "info": "",
+        "x": 90,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "c9ec7025.3595c",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Read",
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 1080,
+        "wires": [
+            [
+                "552387a6.35b948"
+            ]
+        ]
+    },
+    {
+        "id": "8eb05b72.3d26c8",
+        "type": "debug",
+        "z": "1265e8cb.0ad5e7",
+        "name": "Reader",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 440,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "552387a6.35b948",
+        "type": "rpi-automation-hat reader",
+        "z": "1265e8cb.0ad5e7",
+        "name": "",
+        "input": true,
+        "analog": true,
+        "x": 260,
+        "y": 1080,
+        "wires": [
+            [
+                "8eb05b72.3d26c8"
+            ]
+        ]
+    },
+    {
+        "id": "e107e64e.97b218",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "relay.1 on",
+        "topic": "relay.1",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 140,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "319cd869.f75f28",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "relay.1 off",
+        "topic": "relay.1",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 180,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "48e3f51.d20470c",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "relay.2 on",
+        "topic": "relay.2",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 280,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "b8ec109d.d16fd",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "relay.2 off",
+        "topic": "relay.2",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 320,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "402363f9.4200ec",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "relay.3 on",
+        "topic": "relay.3",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 380,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "f0365812.0277a8",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "relay.3 off",
+        "topic": "relay.3",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 420,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "a61cb9ca.dca148",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "light.power on",
+        "topic": "light.POWER",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 1150,
+        "y": 480,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "c907e46.1d94118",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "light.power off",
+        "topic": "light.POWER",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 1150,
+        "y": 520,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "d50662ff.40da",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "light.comms on",
+        "topic": "light.comms",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 1140,
+        "y": 620,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "612c8f72.14d1d",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "light.comms off",
+        "topic": "light.comms",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 1140,
+        "y": 660,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "6cebc9b2.161098",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "light.warn on",
+        "topic": "light.3",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 1150,
+        "y": 720,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "4b4f613.e2b75a",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "light.warn off",
+        "topic": "light.warn",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 1150,
+        "y": 760,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "5ba37499.f990bc",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "output.1 on",
+        "topic": "output.1",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 500,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "e86251d2.21e69",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "output.1 off",
+        "topic": "output.1",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 540,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "ed83ecbc.979c6",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "output.2 on",
+        "topic": "output.2",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 600,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "96b65f27.190aa",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "output.2 off",
+        "topic": "output.2",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 640,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "64827c40.0b61b4",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "output.3 on",
+        "topic": "output.3",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 700,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "29ca81b8.d3ecce",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "output.3 off",
+        "topic": "output.3",
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 740,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "84ff4500.8a38c8",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "relay.1 toggle",
+        "topic": "relay.1",
+        "payload": "toggle",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 110,
+        "y": 220,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    },
+    {
+        "id": "a3b710fa.d6a48",
+        "type": "inject",
+        "z": "1265e8cb.0ad5e7",
+        "name": "light.power toggle",
+        "topic": "light.POWER",
+        "payload": "toggle",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 1140,
+        "y": 560,
+        "wires": [
+            [
+                "d49582b9.8691d"
+            ]
+        ]
+    }
+]
