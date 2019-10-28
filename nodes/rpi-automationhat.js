@@ -115,6 +115,7 @@ module.exports = function(RED) {
 
             hat.stderr.on('data', function(data) {
                 if (data = " UserWarning: Analog Four is not supported on Automation pHAT warnings.warn(\"Analog Four is not supported on Automation pHAT\")"){
+                    // Ignore warning
                     // REDvWarn("Process Warning: "+data+" :");
                     return;
                 }
@@ -167,10 +168,12 @@ module.exports = function(RED) {
                     node.status({fill:"green",shape:"dot",text:"Connected"});
                 }
 
-                REDvInfo("Adding node, input: " + (node.send_input ? "yes" : "no") + 
-                                   ", analog:" + (node.send_analog ? "yes" : "no") + ", threshold: " + node.send_threshold);
-                REDvInfo("Adding node, reader: " + (node.reader_input ? "yes" : "no") + 
-                                   ", analog:" + (node.reader_analog ? "yes" : "no"));
+                // REDvInfo("Adding node, input: " + (node.send_input ? "yes" : "no") + 
+                //                    ", analog:" + (node.send_analog ? "yes" : "no") + 
+                //                    ", threshold: " + node.send_threshold + 
+                //                    ", ADC4 threshold: " + node.send_adc4_threshold);
+                // REDvInfo("Adding node, reader: " + (node.reader_input ? "yes" : "no") + 
+                //                    ", analog:" + (node.reader_analog ? "yes" : "no"));
                 users.push(node);
             },
             close: function(node,done){
@@ -198,15 +201,17 @@ module.exports = function(RED) {
         this.send_input = config.input;
         this.send_analog = config.analog;
         this.send_threshold = config.threshold;
+        this.send_adc4_threshold = config.adc4_threshold
 
         var node = this;
 
         node.status({fill:"red",shape:"ring",text:"Disconnected"});
 
-        REDvInfo("Initialising node");
+        REDvInfo("Initialising AutomationHATIn node");
 
         HAT.open(this);
         HAT.send("Set Analog Threshold:" + this.send_threshold)
+        HAT.send("Set ADC4 Threshold:" + this.send_adc4_threshold)
 
         node.on("close", function(done) {
             HAT.close(this);
@@ -221,6 +226,8 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,config);
  
         var node = this;
+
+        REDvInfo("Initialising AutomationHATOut node");
 
         HAT.open(this);
 
@@ -248,7 +255,7 @@ module.exports = function(RED) {
 
         node.status({fill:"red",shape:"ring",text:"Disconnected"});
 
-        REDvInfo("Initialising node");
+        REDvInfo("Initialising AutomationHATReader node");
 
         HAT.open(this);
 

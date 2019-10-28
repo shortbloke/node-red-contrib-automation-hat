@@ -161,6 +161,7 @@ def handle_command(command):
 
     if command is not None:
         cmd = command.strip().lower()
+        debug("handle_command: {}".format(cmd))
         if ":" in cmd:
             cmd, data = cmd.split(":")
 

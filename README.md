@@ -5,12 +5,19 @@
 ## Provides nodes
 
 * Automation HAT:
-  * Output Node: Sinking Outputs, Relays, Lights
-  * Input Node: Buffered Inputs (binary), 12-bit ADC @ 0-24V (±2% accuracy) Inputs (ADC1-3 only)
+  * Output Node:
+    * Sinking Outputs
+    * Relays (1-3 on HAT and 1 only on pHAT)
+    * Lights (not on pHAT)
+  * Input Node (triggered based on change in input):
+    * Buffered Inputs (binary)
+    * Analog ADC 1-3 - 12-bit ADC @ 0-24V (±2% accuracy)
+    * Analog ADC 4 - 12-bit ADC @ 0-3.3V (not on pHAT)
+  * Reader Node:
+    * On demand reading of input nodes
 
 ### Unsupported features
 
-* ADC4: 12-bit ADC @ 0-3.3V
 * Other Pins exposed only break out section: SPI, TX (#14), RX (#15), #25 pins
 * Controlling individual indicator lights on each input/output beyond the auto_lights capability.
 
