@@ -11,7 +11,7 @@
     * Lights (not on pHAT)
   * Input Node (triggered based on change in input):
     * Buffered Inputs (binary)
-    * Analog ADC 1-3 - 12-bit ADC @ 0-24V (±2% accuracy)
+    * Analog ADC 1-3 - 12-bit ADC @ 0-25.85V (±2% accuracy)
     * Analog ADC 4 - 12-bit ADC @ 0-3.3V (not on pHAT)
   * Reader Node:
     * On demand reading of input nodes
@@ -81,4 +81,4 @@ To install this node you should:
 
 ## References
 
-This project is based on the [ExplorerHAT node implementation published by Pimoroni](https://github.com/pimoroni/node-red-nodes)
+This project is based on the [ExplorerHAT node implementation published by Pimoroni](https://github.com/pimoroni/node-red-nodes).
