@@ -21,20 +21,17 @@ from threading import Thread, Event
 from queue import Queue, Empty
 
 channel_commands = ["light", "output", "relay"]
-property_commands = ["auto_lights", "reader", "set analog threshold", "set adc4 threshold"]
+property_commands = [
+    "auto_lights",
+    "reader",
+    "set analog threshold",
+    "set adc4 threshold",
+]
 basic_commands = ["stop"]
 
-channels = {
-    "one": 1,
-    "two": 2,
-    "three": 3,
-}
+channels = {"one": 1, "two": 2, "three": 3}
 
-analog_inputs = {
-    "one": 1,
-    "two": 2,
-    "three": 3,
-}
+analog_inputs = {"one": 1, "two": 2, "three": 3}
 
 lights = {"power": 1, "comms": 2, "warn": 3}
 last_analog_value = [None, None, None, None, None]
@@ -51,7 +48,7 @@ toggle_values = ["toggle"]
 
 running = True
 # Thresholds set fairly high, as noisy when floating
-threshold = 0.1  
+threshold = 0.1
 adc4_threshold = 0.1
 
 device = "Unknown Device"
