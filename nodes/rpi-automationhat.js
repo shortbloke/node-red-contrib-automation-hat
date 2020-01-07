@@ -79,22 +79,28 @@ module.exports = function(RED) {
                 }
 
                 users.forEach(function(node){
-                    if ( data.substring(0,6) == "analog" && (node.send_analog || node.send_reader_analog) ){
+                    if ( data.substring(0,6) == "analog" ){
                         var channel = data.substring(7,8);
                         var msg = data.split(":")[1];
-                        if(msgObj && msgObj.req && msgObj.res){
-                            node.send({topic:"automationhat/analog." + channel, payload:Number(msg), req : msgObj.req, res : msgObj.res});
-                        } else {
-                            node.send({topic:"automationhat/analog." + channel, payload:Number(msg)});
+                        var isForReader = data.split(":")[2] == "True";
+                        if((!isForReader && node.send_analog) || (isForReader && node.send_reader_analog)){
+                            if(msgObj && msgObj.req && msgObj.res){
+                                node.send({topic:"automationhat/analog." + channel, payload:Number(msg), req : msgObj.req, res : msgObj.res});
+                            } else {
+                                node.send({topic:"automationhat/analog." + channel, payload:Number(msg)});
+                            }
                         }
                     }
-                    else if ( data.substring(0,5) == "input" && (node.send_input || node.send_reader_input) ){
+                    else if ( data.substring(0,5) == "input" ){
                         var channel = data.substring(6,7);
                         var msg = data.split(":")[1];
-                        if(msgObj && msgObj.req && msgObj.req){
-                            node.send({topic:"automationhat/input." + channel, payload:Number(msg), req : msgObj.req, res: msgObj.res});
-                        } else {
-                            node.send({topic:"automationhat/input." + channel, payload:Number(msg)});
+                        var isForReader = data.split(":")[2] == "True";
+                        if((!isForReader && node.send_input) || (isForReader && node.send_reader_input)){
+                            if(msgObj && msgObj.req && msgObj.req){
+                                node.send({topic:"automationhat/input." + channel, payload:Number(msg), req : msgObj.req, res: msgObj.res});
+                            } else {
+                                node.send({topic:"automationhat/input." + channel, payload:Number(msg)});
+                            }
                         }
                     }
                 });

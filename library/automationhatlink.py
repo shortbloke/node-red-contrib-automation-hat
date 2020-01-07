@@ -110,8 +110,8 @@ def fatal(message):
 
 def handle_input(buffered_input, forceEmit=False):
     global input_last_value
-    emit_message = False
     for input_channel in channels:
+        emit_message = False
         if input_last_value[channels[input_channel]] is None:
             emit_message = False  # Supress emit on 1st read/startup
         elif input_last_value[channels[input_channel]] != buffered_input[input_channel]:
@@ -122,8 +122,8 @@ def handle_input(buffered_input, forceEmit=False):
         input_last_value[channels[input_channel]] = buffered_input[input_channel]
         if emit_message:
             emit(
-                "input.{}:{}".format(
-                    channels[input_channel], buffered_input[input_channel]
+                "input.{}:{}:{}".format(
+                    channels[input_channel], buffered_input[input_channel], forceEmit
                 )
             )
 
@@ -132,8 +132,8 @@ def handle_analog(analog, forceEmit=False):
     global last_analog_value
     global threshold
 
-    emit_message = False
     for analog_channel in analog_inputs:
+        emit_message = False
         channel = analog_inputs[analog_channel]
         value = analog[analog_channel]
         trigger_threshold = threshold
@@ -148,7 +148,7 @@ def handle_analog(analog, forceEmit=False):
 
         last_analog_value[channel] = value
         if emit_message:
-            emit("analog.{}:{}".format(channel, value))
+            emit("analog.{}:{}:{}".format(channel, value, forceEmit))
 
 
 def handle_command(command):
