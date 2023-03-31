@@ -20,6 +20,7 @@
 
 * Other Pins exposed only break out section: SPI, TX (#14), RX (#15), #25 pins
 * Controlling individual indicator lights on each input/output beyond the auto_lights capability.
+* SPI LCD Display on Automation HAT Mini
 
 ## More Information
 
@@ -28,9 +29,14 @@ More information and examples of using this node can be found in my blog post [w
 ### Where to buy
 
 * [Pimoroni Automation HAT](https://shop.pimoroni.com/products/automation-hat)
-* [Pimoroni Automation pHAT](https://shop.pimoroni.com/products/automation-phat)
+* [Pimoroni Automation pHAT](https://shop.pimoroni.com/products/automation-phat) [Discontinued Product]
+* [Pimoroni Automation HAT Mini](https://shop.pimoroni.com/products/automation-hat-mini)
 
 ## Installation
+
+### Dependency - Interfaces
+
+In order to use the capabilities of the HATs you'll need to enable some interfaces: I2C and SPI (for display on Mini HAT), which can be done using `sudo raspi-config` and enabling the relevant interface types.
 
 ### Dependency - Node and Node-Red
 
