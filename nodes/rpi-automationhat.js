@@ -160,7 +160,7 @@ module.exports = function(RED) {
                 }
             },3000);
             if (reconnectTimer) {
-                clearTimeout(reconnedTimer);
+                clearTimeout(reconnectTimer);
             }
 
         }
