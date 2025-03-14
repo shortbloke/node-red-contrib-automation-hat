@@ -21,8 +21,6 @@
 * Other Pins exposed only break out section: SPI, TX (#14), RX (#15), #25 pins
 * Controlling individual indicator lights on each input/output beyond the auto_lights capability.
 * SPI LCD Display on Automation HAT Mini
-* Running Pimoroni Automation HAT Python Library within a `venv` (see [issue #14)](https://github.com/shortbloke/node-red-contrib-automation-hat/issues/14)
-
 
 ## More Information
 
@@ -82,7 +80,7 @@ To install this node you should:
     cd ~/.node-red/node_modules
     ```
 
-    _Note: older node installation may use the location: `~/.node-red/nodes`):_
+    _Note: older node installation may use the location: `~/.node-red/nodes`:_
 * Clone this repository:
 
     ``` bash
@@ -94,3 +92,11 @@ To install this node you should:
 ## References
 
 This project is based on the [ExplorerHAT node implementation published by Pimoroni](https://github.com/pimoroni/node-red-nodes).
+
+## Troubleshooting
+
+- `[error] Error: FATAL(Unknown Device): Unable to import automationhat python library`
+  - Ensure you have installed the [Pimoroni Automation HAT Python Library](https://github.com/pimoroni/automation-hat)
+  - Newer installations place the libary into python virtualenv. The default location attempted to be used is:  `$HOME/.virtualenvs/pimoroni/bin`. If you are using a different location either:
+    - Create a symlink between then location you have installed the package at the location this Node-Red module expects to use.
+    - Update the path by editing `$HOME/node-red/node_modules/node-red-contrib-automation-hat/library/automationhatlink` and updating the variable `VIRTUAL_ENV="$HOME/.virtualenvs/pimoroni/bin"`

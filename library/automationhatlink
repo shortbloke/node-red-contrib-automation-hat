@@ -2,6 +2,9 @@
 
 BASEDIR=$(dirname $0)
 
+# Set the virtual environment path. You may need to update this if you're using a different virtual environment
+VIRTUAL_ENV="$HOME/.virtualenvs/pimoroni/bin"
+
 ID=$(id -u)
 
 # Avoid using sudo if we're already root
@@ -11,7 +14,12 @@ then
    SUDO=""
 fi
 
-sudo python3 -u $BASEDIR/automationhatlink.py $@
+if [ -d $VIRTUAL_ENV ]
+then
+   sudo -E env PATH="$VIRTUAL_ENV:$PATH" python3 -u $BASEDIR/automationhatlink.py $@
+else
+   sudo python3 -u $BASEDIR/automationhatlink.py $@
+fi
 
 # For debugging issues with the python library, comment out the above line and uncomment the following line
 # This will log all output to /tmp/hat.log
