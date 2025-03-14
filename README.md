@@ -21,7 +21,8 @@
 * Other Pins exposed only break out section: SPI, TX (#14), RX (#15), #25 pins
 * Controlling individual indicator lights on each input/output beyond the auto_lights capability.
 * SPI LCD Display on Automation HAT Mini
-* Running Pimoroni Automation HAT Python Library within a `venv`
+* Running Pimoroni Automation HAT Python Library within a `venv` (see [issue #14)](https://github.com/shortbloke/node-red-contrib-automation-hat/issues/14)
+
 
 ## More Information
 
@@ -32,6 +33,10 @@ More information and examples of using this node can be found in my blog post [w
 * [Pimoroni Automation HAT](https://shop.pimoroni.com/products/automation-hat)
 * [Pimoroni Automation pHAT](https://shop.pimoroni.com/products/automation-phat) [Discontinued Product]
 * [Pimoroni Automation HAT Mini](https://shop.pimoroni.com/products/automation-hat-mini)
+
+If you find this useful, consider providing some support:
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/martinrowan)
 
 ## Installation
 
