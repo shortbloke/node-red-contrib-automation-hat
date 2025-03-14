@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2018 Martin Rowan <martin@rowannet.co.uk>
+# Copyright 2025 Martin Rowan <martin@rowannet.co.uk>
 # Initial implementation Copyright 2016 Pimoroni Ltd
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -112,6 +112,16 @@ def handle_input(buffered_input, forceEmit=False):
     global input_last_value
     for input_channel in channels:
         emit_message = False
+
+        # Depending on the underlying library used by the Automationhat python library
+        # the values for digial inputs can be True/False or 1/0. Node-Red expects numeric
+        # values, so ensure these values are mapped regardless of library used.
+        # Fixed: https://github.com/shortbloke/node-red-contrib-automation-hat/issues/13
+        if buffered_input[input_channel] == True:
+            buffered_input[input_channel] = 1
+        elif buffered_input[input_channel] == False:
+            buffered_input[input_channel] = 0
+
         if input_last_value[channels[input_channel]] is None:
             emit_message = False  # Supress emit on 1st read/startup
         elif input_last_value[channels[input_channel]] != buffered_input[input_channel]:
@@ -131,6 +141,7 @@ def handle_input(buffered_input, forceEmit=False):
 def handle_analog(analog, forceEmit=False):
     global last_analog_value
     global threshold
+    global adc4_threshold
 
     for analog_channel in analog_inputs:
         emit_message = False
@@ -179,10 +190,18 @@ def handle_command(command):
             elif cmd == "reader":
                 handle_input(automationhat.input.read(), True)
                 handle_analog(automationhat.analog.read(), True)
-            elif (cmd == "set analog threshold") and (float(data) > 0):
-                threshold = float(data)
-            elif (cmd == "set adc4 threshold") and (float(data) > 0):
-                adc4_threshold = float(data)
+            elif (cmd == "set analog threshold"):
+                try:
+                    if (float(data) > 0):
+                        threshold = float(data)
+                except ValueError:
+                    error("Invalid ADC threshold value: {}".format(data))
+            elif (cmd == "set adc4 threshold"):
+                try:
+                    if (float(data) > 0):
+                        adc4_threshold = float(data)
+                except ValueError:
+                    error("Invalid ADC4 threshold value: {}".format(data))
             return
 
         cmd, channel = cmd.split(".")

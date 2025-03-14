@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BASEDIR=$(dirname $0)
 
@@ -12,3 +12,7 @@ then
 fi
 
 sudo python3 -u $BASEDIR/automationhatlink.py $@
+
+# For debugging issues with the python library, comment out the above line and uncomment the following line
+# This will log all output to /tmp/hat.log
+# sudo python3 -u $BASEDIR/automationhatlink.py $@ --verbose 2>&1 | tee -a /tmp/hat.log
